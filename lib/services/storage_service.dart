@@ -10,8 +10,19 @@ class ReadingProgress {
 class StorageService {
   static const String _wpmKey = 'snapreading_wpm';
   static const String _fontSizeKey = 'snapreading_fontsize';
+  static const String _smartChunkingKey = 'snapreading_smart_chunking';
   static const String _lastBookKey = 'snapreading_last_book';
   static const String _prefixProgress = 'snapreading_progress_';
+
+  static Future<bool> getSmartChunking() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_smartChunkingKey) ?? false;
+  }
+
+  static Future<void> setSmartChunking(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_smartChunkingKey, enabled);
+  }
 
   static Future<int> getWpm() async {
     final prefs = await SharedPreferences.getInstance();

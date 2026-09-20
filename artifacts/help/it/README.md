@@ -8,10 +8,11 @@ SnapReading è un'applicazione web per la lettura rapida basata sulla tecnica RS
    - L'applicazione rileva ed estrae automaticamente i libri e i capitoli presenti in `assets/books/`.
    - Mostra titolo, autore, numero di capitoli e stato di avanzamento per ciascun libro.
 
-2. **Lettura RSVP con Punto Focale (ORP)**:
-   - Le parole vengono mostrate una alla volta in un mirino fisso con guide orizzontali e mirino centrale.
-   - La lettera di riconoscimento ottimale (ORP) è evidenziata in rosso/arancione e mantenuta sempre al centro per eliminare i movimenti saccadici degli occhi.
-   - **Pause Intelligenti**: pause più lunghe per virgole/punti e virgola (1.5x) e punti/esclamativi/fine frase (2.0x).
+2. **Lettura RSVP e Modalità Smart Chunking**:
+   - **Modalità 1 Parola (Spritz ORP)**: parole mostrate una alla volta con lettera ORP evidenziata e ancorata al centro.
+   - **Modalità Smart Chunking (Foveale)**: raggruppa automaticamente coppie di parole brevi ($\le 11$ caratteri totali, es. *"in un"*, *"a tempo"*) ancorando lo sguardo nello spazio centrale tra le parole, sfruttando l'elaborazione foveale parallela.
+   - **Calibrazione Reale WPM**: la durata dei chunk è calibrata matematicamente per garantire che la velocità WPM impostata corrisponda esattamente alla velocità di lettura effettiva reale.
+   - **Pause Intelligenti**: pause fisiologiche estese su virgole/punti e virgola (1.5x) e punti/esclamativi/fine frase (2.0x).
 
 3. **Interfaccia Mobile-First Ultra-Minimale e Schermo Intero**:
    - Ottimizzata per smartphone sia in orientamento **Portrait** che **Landscape**.
@@ -19,6 +20,7 @@ SnapReading è un'applicazione web per la lettura rapida basata sulla tecnica RS
    - **Tap sullo schermo**: Avvia o mette in pausa la lettura.
    - **Scorciatoie da tastiera**:
      - `Spazio`: Play / Pausa.
+     - `C`: Attiva/disattiva Smart Chunking.
      - `F`: Attiva/disattiva Schermo Intero.
      - `Freccia Sinistra / Destra`: Salto indietro o avanti di 10 parole.
      - `Freccia Su / Giù`: Incrementa o decrementa la velocità di 25 WPM.

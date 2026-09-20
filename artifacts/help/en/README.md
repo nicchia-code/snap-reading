@@ -8,9 +8,10 @@ SnapReading is a speed reading web application built with Flutter WebAssembly (W
    - The application automatically detects and parses EPUB files located in `assets/books/`.
    - Displays title, author, chapter count, and saved reading progress for each book.
 
-2. **RSVP Reading with Optimal Recognition Point (ORP)**:
-   - Words are displayed one by one inside a fixed reticle with horizontal guide lines and center ticks.
-   - The optimal anchor letter (ORP) is highlighted in coral red and locked in the exact horizontal center, removing eye saccades.
+2. **RSVP Reading & Smart Chunking Mode**:
+   - **1-Word Mode (Spritz ORP)**: words displayed one by one with the optimal recognition point (ORP) centered and highlighted.
+   - **Smart Chunking Mode (Foveal)**: automatically pairs short words ($\le 11$ total characters, e.g. *"in un"*, *"a tempo"*) with gaze anchored in the central gap between the two words, leveraging parallel foveal processing.
+   - **Real WPM Calibration**: chunk display durations are calibrated to guarantee the configured WPM matches the actual words read per minute.
    - **Smart Pacing**: Natural longer pauses for commas/semicolons (1.5x) and sentence endings (2.0x).
 
 3. **Ultra-Minimal Mobile-First UI & Full Screen Mode**:
@@ -19,6 +20,7 @@ SnapReading is a speed reading web application built with Flutter WebAssembly (W
    - **Tap Screen**: Start or pause reading.
    - **Keyboard Shortcuts**:
      - `Spacebar`: Play / Pause.
+     - `C`: Toggle Smart Chunking mode on/off.
      - `F`: Toggle Full Screen.
      - `Left / Right Arrows`: Rewind or skip forward 10 words.
      - `Up / Down Arrows`: Increase or decrease speed by 25 WPM.

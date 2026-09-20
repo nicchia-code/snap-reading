@@ -8,8 +8,10 @@ class ReaderDrawer extends StatelessWidget {
   final int currentWordIndex;
   final int wpm;
   final double fontSize;
+  final bool smartChunking;
   final ValueChanged<int> onWpmChanged;
   final ValueChanged<double> onFontSizeChanged;
+  final ValueChanged<bool> onSmartChunkingChanged;
   final ValueChanged<int> onChapterSelected;
   final ValueChanged<int> onWordSeek;
   final VoidCallback onBackToLibrary;
@@ -21,8 +23,10 @@ class ReaderDrawer extends StatelessWidget {
     required this.currentWordIndex,
     required this.wpm,
     required this.fontSize,
+    required this.smartChunking,
     required this.onWpmChanged,
     required this.onFontSizeChanged,
+    required this.onSmartChunkingChanged,
     required this.onChapterSelected,
     required this.onWordSeek,
     required this.onBackToLibrary,
@@ -113,6 +117,39 @@ class ReaderDrawer extends StatelessWidget {
                         title: 'Tempo Rimasto',
                         value: '$minutesLeft min',
                         subtitle: '$wordsLeft parole rimanenti',
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+                  const Text(
+                    'MODALITÀ DI LETTURA',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFFF5252),
+                      letterSpacing: 1.1,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ModeOptionCard(
+                          title: '1 Parola',
+                          subtitle: 'Spritz ORP',
+                          isSelected: !smartChunking,
+                          onTap: () => onSmartChunkingChanged(false),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _ModeOptionCard(
+                          title: 'Smart Chunking',
+                          subtitle: '2 parole foveali',
+                          isSelected: smartChunking,
+                          onTap: () => onSmartChunkingChanged(true),
+                        ),
                       ),
                     ],
                   ),
@@ -405,6 +442,61 @@ class _QuickSpeedButton extends StatelessWidget {
             color: Colors.white70,
             fontWeight: FontWeight.w600,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ModeOptionCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ModeOptionCard({
+    required this.title,
+    required this.subtitle,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF2E1C1C) : const Color(0xFF202020),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? const Color(0xFFFF5252) : const Color(0xFF333333),
+            width: isSelected ? 1.5 : 1.0,
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                color: isSelected ? const Color(0xFFFF5252) : Colors.white,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 10,
+                color: isSelected ? Colors.white70 : Colors.grey[500],
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -29,15 +29,19 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
   late int _currentChapterIndex;
   late int _currentWordIndex;
+  int _currentChunkIndex = 0;
+  List<ReadingChunk> _currentChunks = [];
+
   int _wpm = 350;
   double _fontSize = 38.0;
+  bool _smartChunking = false;
   bool _isPlaying = false;
   Timer? _stepTimer;
 
   Chapter get _currentChapter => widget.book.chapters[_currentChapterIndex];
-  WordToken? get _currentToken {
-    if (_currentWordIndex >= 0 && _currentWordIndex < _currentChapter.tokens.length) {
-      return _currentChapter.tokens[_currentWordIndex];
+  ReadingChunk? get _currentChunk {
+    if (_currentChunkIndex >= 0 && _currentChunkIndex < _currentChunks.length) {
+      return _currentChunks[_currentChunkIndex];
     }
     return null;
   }
@@ -49,18 +53,38 @@ class _ReaderScreenState extends State<ReaderScreen> {
     final maxWords = widget.book.chapters[_currentChapterIndex].wordCount;
     _currentWordIndex = widget.initialWordIndex.clamp(0, maxWords > 0 ? maxWords - 1 : 0);
 
+    _rebuildChunks();
     _loadSettings();
   }
 
   Future<void> _loadSettings() async {
     final savedWpm = await StorageService.getWpm();
     final savedFont = await StorageService.getFontSize();
+    final savedChunking = await StorageService.getSmartChunking();
     if (mounted) {
       setState(() {
         _wpm = savedWpm;
         _fontSize = savedFont;
+        _smartChunking = savedChunking;
+        _rebuildChunks();
       });
     }
+  }
+
+  void _rebuildChunks() {
+    _currentChunks = _currentChapter.buildChunks(smartChunking: _smartChunking);
+    _currentChunkIndex = _findChunkIndexForWord(_currentWordIndex);
+  }
+
+  int _findChunkIndexForWord(int wordIndex) {
+    if (_currentChunks.isEmpty) return 0;
+    for (int i = 0; i < _currentChunks.length; i++) {
+      final c = _currentChunks[i];
+      if (wordIndex >= c.startIndex && wordIndex < c.startIndex + c.wordCount) {
+        return i;
+      }
+    }
+    return (_currentChunks.length - 1).clamp(0, _currentChunks.length - 1);
   }
 
   @override
@@ -89,8 +113,10 @@ class _ReaderScreenState extends State<ReaderScreen> {
       if (_currentChapterIndex < widget.book.chapters.length - 1) {
         _currentChapterIndex++;
         _currentWordIndex = 0;
+        _rebuildChunks();
       } else {
         _currentWordIndex = 0;
+        _currentChunkIndex = 0;
       }
     }
 
@@ -113,20 +139,33 @@ class _ReaderScreenState extends State<ReaderScreen> {
     _stepTimer = null;
   }
 
+  int _calculateChunkDelayMs(ReadingChunk chunk) {
+    final totalWords = _currentChapter.wordCount;
+    if (totalWords == 0) return (60000 / _wpm).round();
+
+    // Exact calibration:
+    // Total chapter reading time desired = (totalWords / _wpm) * 60000 ms
+    // Sum of all chunk weights in the chapter:
+    final totalWeight = _currentChunks.fold<double>(0.0, (sum, c) => sum + c.weight);
+    // DeltaT per unit weight:
+    final deltaT = (totalWords * 60000.0) / (_wpm * (totalWeight > 0 ? totalWeight : 1.0));
+
+    return (chunk.weight * deltaT).round().clamp(20, 3000);
+  }
+
   void _scheduleNextWord() {
     if (!_isPlaying || !mounted) return;
 
-    final token = _currentToken;
-    final baseDurationMs = (60000 / _wpm).round();
-    final multiplier = token?.pauseMultiplier ?? 1.0;
-    final delayMs = (baseDurationMs * multiplier).round().clamp(20, 2000);
+    final chunk = _currentChunk;
+    final delayMs = chunk != null ? _calculateChunkDelayMs(chunk) : (60000 / _wpm).round();
 
     _stepTimer = Timer(Duration(milliseconds: delayMs), () {
       if (!_isPlaying || !mounted) return;
 
-      if (_currentWordIndex < _currentChapter.tokens.length - 1) {
+      if (_currentChunkIndex < _currentChunks.length - 1) {
         setState(() {
-          _currentWordIndex++;
+          _currentChunkIndex++;
+          _currentWordIndex = _currentChunks[_currentChunkIndex].startIndex;
         });
         _scheduleNextWord();
       } else {
@@ -136,6 +175,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
           setState(() {
             _currentChapterIndex++;
             _currentWordIndex = 0;
+            _rebuildChunks();
           });
           _saveProgress();
           _stepTimer = Timer(const Duration(milliseconds: 900), _scheduleNextWord);
@@ -151,6 +191,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
     setState(() {
       final newIndex = (_currentWordIndex + offset).clamp(0, _currentChapter.tokens.length - 1);
       _currentWordIndex = newIndex;
+      _currentChunkIndex = _findChunkIndexForWord(_currentWordIndex);
     });
     _saveProgress();
   }
@@ -169,11 +210,20 @@ class _ReaderScreenState extends State<ReaderScreen> {
     StorageService.setFontSize(newSize);
   }
 
+  void _changeSmartChunking(bool enabled) {
+    setState(() {
+      _smartChunking = enabled;
+      _rebuildChunks();
+    });
+    StorageService.setSmartChunking(enabled);
+  }
+
   void _selectChapter(int index) {
     _pausePlayback();
     setState(() {
       _currentChapterIndex = index.clamp(0, widget.book.chapters.length - 1);
       _currentWordIndex = 0;
+      _rebuildChunks();
     });
     _saveProgress();
   }
@@ -181,6 +231,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
   void _seekWord(int index) {
     setState(() {
       _currentWordIndex = index.clamp(0, _currentChapter.tokens.length - 1);
+      _currentChunkIndex = _findChunkIndexForWord(_currentWordIndex);
     });
     _saveProgress();
   }
@@ -207,6 +258,9 @@ class _ReaderScreenState extends State<ReaderScreen> {
           if (mounted) setState(() {});
         });
         return KeyEventResult.handled;
+      } else if (event.logicalKey == LogicalKeyboardKey.keyC) {
+        _changeSmartChunking(!_smartChunking);
+        return KeyEventResult.handled;
       }
     }
     return KeyEventResult.ignored;
@@ -230,8 +284,10 @@ class _ReaderScreenState extends State<ReaderScreen> {
           currentWordIndex: _currentWordIndex,
           wpm: _wpm,
           fontSize: _fontSize,
+          smartChunking: _smartChunking,
           onWpmChanged: _changeWpm,
           onFontSizeChanged: _changeFontSize,
+          onSmartChunkingChanged: _changeSmartChunking,
           onChapterSelected: _selectChapter,
           onWordSeek: _seekWord,
           onBackToLibrary: () => Navigator.of(context).pop(),
@@ -246,7 +302,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
                 child: SizedBox.expand(
                   child: Center(
                     child: RsvpDisplay(
-                      token: _currentToken,
+                      chunk: _currentChunk,
                       fontSize: _fontSize,
                       isPlaying: _isPlaying,
                     ),
@@ -342,7 +398,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
                               tooltip: '-10 parole',
                               onPressed: () => _seekRelative(-10),
                             ),
-                            // Play/Pause pill
+                            // Play/Pause pill with Mode indicator
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                               decoration: BoxDecoration(
@@ -359,7 +415,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    '$_wpm WPM',
+                                    _smartChunking ? '$_wpm WPM • 2W' : '$_wpm WPM',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
