@@ -74,3 +74,9 @@ Le azioni read only puoi farle senza chiedere.
 Puoi anche proporre quando è necessario cambiare branch (magari perché semanticamente poco adatto al task)
 
 ** Il branch deve sempre essere adatto alla feature che sta venendo sviluppata, non puoi cambiare in autonomia ma se necessario proponi uno switch al programmatore (che può declinare)
+
+## Tooling e Linguaggi
+
+- L'applicazione principale è interamente in **Flutter/Dart** (nessuna dipendenza Python a runtime).
+- Se per script di supporto o utilità dovesse rendersi necessario Python, usare **sempre `uv`** (`uv run`, `uv pip`, ecc.).
+
