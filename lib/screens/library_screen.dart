@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/book.dart';
@@ -18,6 +20,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   String? _errorMessage;
   final List<Book> _books = [];
   final Map<String, ReadingProgress> _progressMap = {};
+  String _buildVersion = '';
 
   @override
   void initState() {
@@ -25,7 +28,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
     _loadBooks();
   }
 
-  Future<void> _loadBooks() async {
+  Future<void> _loadBooks({bool forceRefresh = false}) async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -34,6 +37,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
     });
 
     try {
+      String appVersionQuery = '';
+      try {
+        final versionStr = await rootBundle.loadString('assets/version.json');
+        final versionData = jsonDecode(versionStr) as Map<String, dynamic>;
+        _buildVersion = versionData['buildNumber'] != null ? 'b${versionData['buildNumber']}' : '';
+        appVersionQuery = versionData['timestamp']?.toString() ?? versionData['buildNumber']?.toString() ?? '';
+      } catch (_) {}
+
+      if (forceRefresh) {
+        appVersionQuery = DateTime.now().millisecondsSinceEpoch.toString();
+      }
+
       // Find all assets in assets/books/ ending with .epub
       final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
       final allAssets = manifest.listAssets();
@@ -48,7 +63,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
       for (final assetPath in epubAssets) {
         try {
-          final byteData = await rootBundle.load(assetPath);
+          ByteData byteData;
+          if (kIsWeb && appVersionQuery.isNotEmpty) {
+            final bundle = NetworkAssetBundle(Uri.parse('assets/'));
+            byteData = await bundle.load('$assetPath?v=$appVersionQuery');
+          } else {
+            byteData = await rootBundle.load(assetPath);
+          }
           final bytes = byteData.buffer.asUint8List();
           final book = EpubService.parseEpub(bytes, fallbackId: assetPath);
           _books.add(book);
@@ -59,7 +80,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
           debugPrint('Errore caricamento $assetPath: $e');
         }
       }
-
       setState(() {
         _isLoading = false;
       });
@@ -134,6 +154,21 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 color: Colors.white,
               ),
             ),
+            if (_buildVersion.isNotEmpty) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF262626),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: const Color(0xFF383838)),
+                ),
+                child: Text(
+                  _buildVersion,
+                  style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ],
         ),
         actions: [
@@ -151,8 +186,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white70),
-            tooltip: 'Ricarica libri',
-            onPressed: _loadBooks,
+            tooltip: 'Ricarica libri (bypassa cache)',
+            onPressed: () => _loadBooks(forceRefresh: true),
           ),
         ],
       ),
