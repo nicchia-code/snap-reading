@@ -74,7 +74,3 @@ Le azioni read only puoi farle senza chiedere.
 Puoi anche proporre quando è necessario cambiare branch (magari perché semanticamente poco adatto al task)
 
 ** Il branch deve sempre essere adatto alla feature che sta venendo sviluppata, non puoi cambiare in autonomia ma se necessario proponi uno switch al programmatore (che può declinare)
-
-## Cartella $SERVIZIO/docs
-
-Questo è un monorepo, all'interno di ogni parte del repository è presente un README.md che spiega il funzionamento, e un eventuale cartella docs. Leggi sempre il file README.md, e sei incentivato a leggere i docs se necessario, quando hai qualche dubbio.

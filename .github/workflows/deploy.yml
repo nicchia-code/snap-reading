@@ -37,7 +37,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Web WASM
-        run: flutter build web --wasm --base-href /SnapReading/
+        run: flutter build web --wasm --base-href /snap-reading/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
