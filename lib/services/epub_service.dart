@@ -64,9 +64,9 @@ class EpubService {
         ? authorElem!.innerText.trim()
         : 'Autore sconosciuto';
 
-    // Manifest: id -> relative href
+    // Manifest: id -> relative href (using name.local to support any XML prefix/default namespace)
     final manifestMap = <String, String>{};
-    for (final item in opfDoc.findAllElements('item')) {
+    for (final item in opfDoc.descendants.whereType<XmlElement>().where((e) => e.name.local == 'item')) {
       final id = item.getAttribute('id');
       final href = item.getAttribute('href');
       if (id != null && href != null) {
@@ -76,9 +76,9 @@ class EpubService {
 
     // Spine: ordered list of itemrefs
     final spineIds = <String>[];
-    final spine = opfDoc.findAllElements('spine').firstOrNull;
+    final spine = opfDoc.descendants.whereType<XmlElement>().where((e) => e.name.local == 'spine').firstOrNull;
     if (spine != null) {
-      for (final itemref in spine.findAllElements('itemref')) {
+      for (final itemref in spine.descendants.whereType<XmlElement>().where((e) => e.name.local == 'itemref')) {
         final idref = itemref.getAttribute('idref');
         if (idref != null) {
           spineIds.add(idref);
