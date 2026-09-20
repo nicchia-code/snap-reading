@@ -13,11 +13,13 @@ SnapReading is a speed reading web application built with Flutter WebAssembly (W
    - The optimal anchor letter (ORP) is highlighted in coral red and locked in the exact horizontal center, removing eye saccades.
    - **Smart Pacing**: Natural longer pauses for commas/semicolons (1.5x) and sentence endings (2.0x).
 
-3. **Ultra-Minimal Mobile-First UI**:
+3. **Ultra-Minimal Mobile-First UI & Full Screen Mode**:
    - Tailored for mobile screens in both **Portrait** and **Landscape** orientations.
+   - **Full Screen Mode**: Dedicated button in the library AppBar, reader top bar, and side drawer (or `F` key) to hide browser chrome and immerse completely in reading.
    - **Tap Screen**: Start or pause reading.
    - **Keyboard Shortcuts**:
      - `Spacebar`: Play / Pause.
+     - `F`: Toggle Full Screen.
      - `Left / Right Arrows`: Rewind or skip forward 10 words.
      - `Up / Down Arrows`: Increase or decrease speed by 25 WPM.
 

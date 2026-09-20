@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/book.dart';
 import '../services/epub_service.dart';
+import '../services/fullscreen_service.dart';
 import '../services/storage_service.dart';
 import 'reader_screen.dart';
 
@@ -136,6 +137,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: Icon(
+              FullscreenService.isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+              color: Colors.white70,
+            ),
+            tooltip: 'Schermo intero',
+            onPressed: () {
+              FullscreenService.toggleFullscreen().then((_) {
+                if (mounted) setState(() {});
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white70),
             tooltip: 'Ricarica libri',

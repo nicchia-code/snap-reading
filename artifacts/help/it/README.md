@@ -13,11 +13,13 @@ SnapReading è un'applicazione web per la lettura rapida basata sulla tecnica RS
    - La lettera di riconoscimento ottimale (ORP) è evidenziata in rosso/arancione e mantenuta sempre al centro per eliminare i movimenti saccadici degli occhi.
    - **Pause Intelligenti**: pause più lunghe per virgole/punti e virgola (1.5x) e punti/esclamativi/fine frase (2.0x).
 
-3. **Interfaccia Mobile-First Ultra-Minimale**:
+3. **Interfaccia Mobile-First Ultra-Minimale e Schermo Intero**:
    - Ottimizzata per smartphone sia in orientamento **Portrait** che **Landscape**.
+   - **Modalità Schermo Intero (Full Screen)**: pulsante dedicato nell'AppBar della libreria, nella barra superiore del lettore e nel pannello laterale (o tasto `F` su tastiera) per nascondere la barra del browser e leggere senza alcuna distrazione.
    - **Tap sullo schermo**: Avvia o mette in pausa la lettura.
    - **Scorciatoie da tastiera**:
      - `Spazio`: Play / Pausa.
+     - `F`: Attiva/disattiva Schermo Intero.
      - `Freccia Sinistra / Destra`: Salto indietro o avanti di 10 parole.
      - `Freccia Su / Giù`: Incrementa o decrementa la velocità di 25 WPM.
 

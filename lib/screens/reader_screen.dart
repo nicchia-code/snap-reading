@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/book.dart';
+import '../services/fullscreen_service.dart';
 import '../services/storage_service.dart';
 import '../widgets/reader_drawer.dart';
 import '../widgets/rsvp_display.dart';
@@ -201,6 +202,11 @@ class _ReaderScreenState extends State<ReaderScreen> {
       } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
         _changeWpm((_wpm - 25).clamp(150, 900));
         return KeyEventResult.handled;
+      } else if (event.logicalKey == LogicalKeyboardKey.keyF) {
+        FullscreenService.toggleFullscreen().then((_) {
+          if (mounted) setState(() {});
+        });
+        return KeyEventResult.handled;
       }
     }
     return KeyEventResult.ignored;
@@ -283,6 +289,20 @@ class _ReaderScreenState extends State<ReaderScreen> {
                               color: Colors.white70,
                             ),
                           ),
+                        ),
+                        // Fullscreen Toggle
+                        IconButton(
+                          icon: Icon(
+                            FullscreenService.isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+                            size: 22,
+                            color: Colors.white70,
+                          ),
+                          tooltip: 'Schermo intero (F)',
+                          onPressed: () {
+                            FullscreenService.toggleFullscreen().then((_) {
+                              if (mounted) setState(() {});
+                            });
+                          },
                         ),
                         // Open Settings & Stats Drawer
                         IconButton(

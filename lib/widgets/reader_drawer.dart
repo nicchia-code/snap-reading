@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
+import '../services/fullscreen_service.dart';
 
 class ReaderDrawer extends StatelessWidget {
   final Book book;
@@ -275,22 +276,52 @@ class ReaderDrawer extends StatelessWidget {
             ),
 
             const Divider(color: Color(0xFF282828), height: 1),
-            // Bottom Action
+            // Bottom Actions
             Padding(
               padding: const EdgeInsets.all(16),
-              child: OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: Color(0xFF444444)),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                icon: const Icon(Icons.auto_stories, size: 18),
-                label: const Text('Libreria'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  onBackToLibrary();
-                },
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Color(0xFF444444)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      icon: Icon(
+                        FullscreenService.isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+                        size: 18,
+                      ),
+                      label: Text(
+                        FullscreenService.isFullscreen ? 'Riduci' : 'Full Screen',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      onPressed: () {
+                        FullscreenService.toggleFullscreen();
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Color(0xFF444444)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      icon: const Icon(Icons.auto_stories, size: 18),
+                      label: const Text('Libreria'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        onBackToLibrary();
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

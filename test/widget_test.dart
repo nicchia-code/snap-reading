@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:snap_reading/models/book.dart';
 import 'package:snap_reading/services/epub_service.dart';
@@ -52,10 +53,11 @@ void main() {
   });
 
   group('App Smoke Test', () {
-    testWidgets('Renders SnapReadingApp without crashing', (tester) async {
+    testWidgets('Renders SnapReadingApp with fullscreen actions', (tester) async {
       await tester.pumpWidget(const SnapReadingApp());
       expect(find.text('SNAP'), findsOneWidget);
       expect(find.text('Reading'), findsOneWidget);
+      expect(find.byIcon(Icons.fullscreen), findsOneWidget);
     });
   });
 }
