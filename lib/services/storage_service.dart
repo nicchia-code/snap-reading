@@ -36,7 +36,7 @@ class StorageService {
 
   static Future<double> getFontSize() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getDouble(_fontSizeKey) ?? 38.0;
+    return prefs.getDouble(_fontSizeKey) ?? 32.0;
   }
 
   static Future<void> setFontSize(double size) async {

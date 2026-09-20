@@ -33,7 +33,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
   List<ReadingChunk> _currentChunks = [];
 
   int _wpm = 350;
-  double _fontSize = 38.0;
+  double _fontSize = 32.0;
   bool _smartChunking = false;
   bool _isPlaying = false;
   Timer? _stepTimer;

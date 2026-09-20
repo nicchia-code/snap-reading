@@ -23,7 +23,7 @@ class RsvpDisplay extends StatelessWidget {
       fontSize: fontSize,
       fontFamily: 'monospace',
       fontWeight: FontWeight.w600,
-      letterSpacing: 1.2,
+      letterSpacing: 1.1,
       color: textColor,
     );
 
@@ -35,9 +35,9 @@ class RsvpDisplay extends StatelessWidget {
     return Center(
       child: Container(
         width: double.infinity,
-        constraints: const BoxConstraints(maxWidth: 580),
-        margin: const EdgeInsets.symmetric(horizontal: 20),
-        padding: const EdgeInsets.symmetric(vertical: 28),
+        constraints: const BoxConstraints(maxWidth: 540),
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
         decoration: const BoxDecoration(
           border: Border(
             top: BorderSide(color: reticleColor, width: 2),
@@ -50,94 +50,55 @@ class RsvpDisplay extends StatelessWidget {
           children: [
             // Top crosshair tick
             Positioned(
-              top: -28,
+              top: -24,
               child: Container(
                 width: 3,
-                height: 10,
+                height: 8,
                 color: orpColor.withValues(alpha: 0.8),
               ),
             ),
             // Bottom crosshair tick
             Positioned(
-              bottom: -28,
+              bottom: -24,
               child: Container(
                 width: 3,
-                height: 10,
+                height: 8,
                 color: orpColor.withValues(alpha: 0.8),
               ),
             ),
 
-            // Display content
+            // Display content with FittedBox for perfect containment
             if (chunk != null && chunk!.tokens.isNotEmpty)
-              if (chunk!.isMultiWord)
-                // 2-Word Smart Chunk: focal center between word1 and word2
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        chunk!.word1,
-                        textAlign: TextAlign.right,
-                        maxLines: 1,
-                        overflow: TextOverflow.clip,
-                        style: baseStyle,
-                      ),
-                    ),
-                    // Centered gap where crosshairs meet
-                    Container(
-                      width: 14,
-                      alignment: Alignment.center,
-                      child: Container(
-                        width: 4,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: orpColor.withValues(alpha: 0.6),
-                          shape: BoxShape.circle,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.center,
+                child: chunk!.isMultiWord
+                    ? Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: chunk!.word1, style: baseStyle),
+                            TextSpan(
+                              text: '   ',
+                              style: baseStyle.copyWith(color: orpColor.withValues(alpha: 0.5)),
+                            ),
+                            TextSpan(text: chunk!.word2, style: baseStyle),
+                          ],
                         ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        chunk!.word2,
-                        textAlign: TextAlign.left,
+                        textAlign: TextAlign.center,
                         maxLines: 1,
-                        overflow: TextOverflow.clip,
-                        style: baseStyle,
-                      ),
-                    ),
-                  ],
-                )
-              else
-                // 1-Word Spritz ORP: pivot letter anchored dead-center
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        chunk!.prefix,
-                        textAlign: TextAlign.right,
+                      )
+                    : Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: chunk!.prefix, style: baseStyle),
+                            TextSpan(text: chunk!.orpChar, style: orpStyle),
+                            TextSpan(text: chunk!.suffix, style: baseStyle),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
                         maxLines: 1,
-                        overflow: TextOverflow.clip,
-                        style: baseStyle,
                       ),
-                    ),
-                    Text(
-                      chunk!.orpChar,
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      style: orpStyle,
-                    ),
-                    Expanded(
-                      child: Text(
-                        chunk!.suffix,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                        overflow: TextOverflow.clip,
-                        style: baseStyle,
-                      ),
-                    ),
-                  ],
-                )
+              )
             else
               Text(
                 isPlaying ? 'Caricamento...' : 'Tocca per iniziare',
